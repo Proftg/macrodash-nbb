@@ -11,8 +11,12 @@ Le format JSON Eurostat est un tableau N-dimensionnel aplati.
 Chaque observation est identifiée par un indice calculé avec des strides :
   stride[i] = prod(size[i+1:])
   dim_idx[i] = (flat_index // stride[i]) % size[i]
+
+Note : depuis mai 2026, l'API exige que startPeriod et endPeriod soient
+tous les deux présents. Sans endPeriod, elle retourne HTTP 400.
 """
 import time
+from datetime import date
 from pathlib import Path
 
 import pandas as pd
@@ -40,18 +44,21 @@ class EurostatClient:
         **extra,
     ) -> dict:
         """Requête brute vers l'API Eurostat, retourne le dict JSON."""
+        # L'API exige startPeriod ET endPeriod depuis mai 2026
+        _end = end or str(date.today().year)
         params: dict = {"format": "JSON"}
         if geo:
             params["geo"] = geo
         if start:
             params["startPeriod"] = start
-        if end:
-            params["endPeriod"] = end
+        params["endPeriod"] = _end
         params.update(extra)
 
         r = self.session.get(
             f"{EUROSTAT_BASE}/{code}", params=params, timeout=self.timeout
         )
+        if not r.ok:
+            print(f"  [{r.status_code}] {r.text[:300]}")
         r.raise_for_status()
         return r.json()
 
