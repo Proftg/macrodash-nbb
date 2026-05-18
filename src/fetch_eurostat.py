@@ -1,14 +1,17 @@
 """
-Client Eurostat SDMX-JSON.
+Client pour l'API Eurostat.
 
-stat.nbb.be/sdmx-json est hors service (confirmé mars 2026).
-On utilise Eurostat qui publie les mêmes séries macro belges via une API
-JSON stable, gratuite et sans authentification.
+stat.nbb.be/sdmx-json est hors service depuis mars 2026.
+On utilise Eurostat qui publie les mêmes séries macro belges
+via une API JSON gratuite et sans inscription.
 
 Doc officielle : https://ec.europa.eu/eurostat/web/main/data/web-services
-Format JSON  : tableau N-dimensionnel aplati avec strides.
+
+Le format JSON Eurostat est un tableau N-dimensionnel aplati.
+Chaque observation est identifiée par un indice calculé avec des strides :
+  stride[i] = prod(size[i+1:])
+  dim_idx[i] = (flat_index // stride[i]) % size[i]
 """
-import json
 import time
 from pathlib import Path
 
@@ -28,10 +31,6 @@ class EurostatClient:
         )
         self.timeout = timeout
 
-    # ------------------------------------------------------------------
-    # API
-    # ------------------------------------------------------------------
-
     def get_raw(
         self,
         code: str,
@@ -40,7 +39,7 @@ class EurostatClient:
         end: str | None = None,
         **extra,
     ) -> dict:
-        """Requête brute → dict JSON Eurostat."""
+        """Requête brute vers l'API Eurostat, retourne le dict JSON."""
         params: dict = {"format": "JSON", "lang": "EN"}
         if geo:
             params["geo"] = geo
@@ -58,11 +57,11 @@ class EurostatClient:
 
     def parse(self, data: dict) -> pd.DataFrame:
         """
-        Convertit une réponse JSON Eurostat en DataFrame.
+        Convertit une réponse JSON Eurostat en DataFrame pandas.
 
-        Algorithme strides :
-          stride[i] = prod(size[i+1:])
-          dim_idx[i] = (flat_index // stride[i]) % size[i]
+        Eurostat encode les données sous forme d'un tableau aplati.
+        On reconstruit les indices de chaque dimension via les strides,
+        puis on mappe chaque position sur son code de catégorie.
         """
         id_order = data.get("id", [])
         sizes = data.get("size", [])
@@ -100,10 +99,6 @@ class EurostatClient:
         df["valeur"] = pd.to_numeric(df["valeur"], errors="coerce")
         return df
 
-    # ------------------------------------------------------------------
-    # Helpers haut niveau
-    # ------------------------------------------------------------------
-
     def fetch_series(
         self,
         key: str,
@@ -112,7 +107,7 @@ class EurostatClient:
     ) -> pd.DataFrame:
         """
         Récupère et filtre une série définie dans config.DATASETS.
-        Retourne un DataFrame 2 colonnes : [periode, valeur].
+        Retourne un DataFrame à deux colonnes : periode et valeur.
         """
         cfg = DATASETS[key]
         raw = self.get_raw(
@@ -122,7 +117,7 @@ class EurostatClient:
         if df.empty:
             return df
 
-        # Garder uniquement les colonnes utiles après filtrage
+        # Si plusieurs dimensions restantes, on prend la moyenne par période
         dim_cols = [c for c in df.columns if c not in ("periode", "valeur")]
         if dim_cols:
             df = df.groupby("periode")["valeur"].mean().reset_index()
@@ -136,8 +131,8 @@ class EurostatClient:
         cache: bool = True,
     ) -> dict[str, pd.DataFrame]:
         """
-        Récupère toutes les séries de config.DATASETS.
-        Si cache=True, sauvegarde chaque série en CSV dans data/raw/.
+        Récupère toutes les séries du catalogue.
+        Avec cache=True, chaque série est sauvegardée en CSV dans data/raw/.
         """
         results: dict[str, pd.DataFrame] = {}
         for key in DATASETS:
@@ -148,12 +143,12 @@ class EurostatClient:
                     if cache:
                         path = DATA_RAW / f"{key}.csv"
                         df.to_csv(path, index=False)
-                        print(f"  {key:<15} {len(df):>4} obs  → {path.name}")
+                        print(f"  {key:<15} {len(df):>4} obs  -> {path.name}")
                     else:
                         print(f"  {key:<15} {len(df):>4} obs")
                 else:
                     print(f"  {key:<15} vide")
-                time.sleep(0.5)  # courtoisie API
+                time.sleep(0.5)
             except requests.HTTPError as e:
                 print(f"  {key:<15} HTTP {e.response.status_code}")
             except Exception as e:
@@ -162,7 +157,7 @@ class EurostatClient:
 
     @staticmethod
     def load_cached() -> dict[str, pd.DataFrame]:
-        """Charge les CSVs depuis data/raw/ (évite les appels API répétés)."""
+        """Charge les CSVs depuis data/raw/ pour éviter les appels API répétés."""
         results: dict[str, pd.DataFrame] = {}
         for key in DATASETS:
             path = DATA_RAW / f"{key}.csv"
