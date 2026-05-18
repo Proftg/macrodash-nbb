@@ -40,7 +40,7 @@ class EurostatClient:
         **extra,
     ) -> dict:
         """Requête brute vers l'API Eurostat, retourne le dict JSON."""
-        params: dict = {"format": "JSON", "lang": "EN"}
+        params: dict = {"format": "JSON"}
         if geo:
             params["geo"] = geo
         if start:
