@@ -108,16 +108,26 @@ class EurostatClient:
         """
         Récupère et filtre une série définie dans config.DATASETS.
         Retourne un DataFrame à deux colonnes : periode et valeur.
+
+        Les filtres de dimensions (sex, age, unit...) ne sont pas passés
+        en query params car l'API Eurostat retourne 400 sur certains d'entre eux.
+        On les applique en pandas après avoir parsé la réponse complète.
         """
         cfg = DATASETS[key]
-        raw = self.get_raw(
-            cfg["code"], geo=cfg["geo"], start=start, end=end, **cfg["filters"]
-        )
+        raw = self.get_raw(cfg["code"], geo=cfg["geo"], start=start, end=end)
         df = self.parse(raw)
         if df.empty:
             return df
 
-        # Si plusieurs dimensions restantes, on prend la moyenne par période
+        # Appliquer les filtres de dimensions sur le DataFrame
+        for col, val in cfg["filters"].items():
+            if col in df.columns:
+                df = df[df[col] == val]
+
+        if df.empty:
+            return df
+
+        # S'il reste plusieurs valeurs par période, on prend la moyenne
         dim_cols = [c for c in df.columns if c not in ("periode", "valeur")]
         if dim_cols:
             df = df.groupby("periode")["valeur"].mean().reset_index()
