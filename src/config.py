@@ -54,10 +54,10 @@ DATASETS: dict[str, dict] = {
 
 # Dates clés du cycle BCE, utilisées pour annoter les graphiques.
 BCE_EVENTS: list[tuple[str, str, str]] = [
-    ("2020-03", "COVID", "#717d7e"),
-    ("2022-07", "BCE +0.5%", "#c0392b"),
-    ("2023-09", "Pic BCE 4.5%", "#c0392b"),
-    ("2024-06", "BCE -0.25%", "#1e8449"),
+    ("2020-03-01", "COVID", "#717d7e"),
+    ("2022-07-01", "BCE +0.5%", "#c0392b"),
+    ("2023-09-01", "Pic BCE 4.5%", "#c0392b"),
+    ("2024-06-01", "BCE -0.25%", "#1e8449"),
 ]
 
 EUROSTAT_BASE = (
