@@ -115,8 +115,9 @@ for i, key in enumerate(selected, start=1):
 
 if show_events:
     for date_str, label, color in BCE_EVENTS:
+        x_ms = pd.Timestamp(date_str).value // 10**6
         fig.add_vline(
-            x=date_str,
+            x=x_ms,
             line_dash="dot",
             line_color=color,
             opacity=0.5,
