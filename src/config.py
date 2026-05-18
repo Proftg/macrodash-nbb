@@ -7,9 +7,8 @@ DATA_PROCESSED = ROOT / "data" / "processed"
 DATA_RAW.mkdir(parents=True, exist_ok=True)
 DATA_PROCESSED.mkdir(parents=True, exist_ok=True)
 
-# Eurostat dataset catalogue
-# key  -> nom interne utilisé dans le dashboard
-# code -> identifiant Eurostat officiel
+# Catalogue des séries Eurostat utilisées dans le dashboard.
+# Chaque clé est le nom interne utilisé dans le code et les CSVs.
 DATASETS: dict[str, dict] = {
     "olo_10y": {
         "code": "irt_lt_mcby_m",
@@ -39,7 +38,7 @@ DATASETS: dict[str, dict] = {
         "code": "une_rt_m",
         "geo": "BE",
         "filters": {"sex": "T", "age": "TOTAL", "unit": "PC_ACT"},
-        "label": "Chômage (% actifs)",
+        "label": "Chomage (% actifs)",
         "unit": "% actifs",
         "color": "#6c3483",
     },
@@ -53,12 +52,12 @@ DATASETS: dict[str, dict] = {
     },
 }
 
-# Événements clés BCE pour annotations dans les graphiques
+# Dates clés du cycle BCE, utilisées pour annoter les graphiques.
 BCE_EVENTS: list[tuple[str, str, str]] = [
     ("2020-03", "COVID", "#717d7e"),
     ("2022-07", "BCE +0.5%", "#c0392b"),
     ("2023-09", "Pic BCE 4.5%", "#c0392b"),
-    ("2024-06", "BCE −0.25%", "#1e8449"),
+    ("2024-06", "BCE -0.25%", "#1e8449"),
 ]
 
 EUROSTAT_BASE = (

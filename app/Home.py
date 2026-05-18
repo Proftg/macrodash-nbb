@@ -1,6 +1,6 @@
 """
-MacroDash NBB — Page d'accueil Streamlit.
-Point d'entrée : streamlit run app/Home.py
+MacroDash NBB : page d'accueil Streamlit.
+Lancer avec : streamlit run app/Home.py
 """
 import sys
 from pathlib import Path
@@ -24,12 +24,9 @@ st.set_page_config(
     layout="wide",
 )
 
-st.title("🏦 MacroDash — Indicateurs macroéconomiques belges")
+st.title("🏦 MacroDash : indicateurs macroéconomiques belges")
 st.caption("Source : Eurostat | Auteur : Tahar Guenfoud | 2026")
 
-# ------------------------------------------------------------------
-# Chargement des données
-# ------------------------------------------------------------------
 
 @st.cache_data(ttl=86_400)
 def load_data() -> pd.DataFrame:
@@ -42,17 +39,15 @@ def load_data() -> pd.DataFrame:
     return build_macro_df(series)
 
 
-with st.spinner("Chargement des données Eurostat…"):
+with st.spinner("Chargement des données Eurostat..."):
     macro = load_data()
 
 if macro.empty:
-    st.error("Impossible de charger les données. Vérifier la connexion réseau.")
+    st.error("Impossible de charger les données. Vérifie ta connexion réseau.")
     st.stop()
 
-# ------------------------------------------------------------------
-# Filtres sidebar
-# ------------------------------------------------------------------
 
+# Filtres dans la sidebar
 st.sidebar.header("Filtres")
 available_keys = [k for k in DATASETS if k in macro.columns]
 selected = st.sidebar.multiselect(
@@ -69,10 +64,8 @@ df_view = macro[str(year_range[0]):str(year_range[1])]
 
 show_events = st.sidebar.checkbox("Afficher événements BCE", value=True)
 
-# ------------------------------------------------------------------
-# KPIs (dernière valeur disponible)
-# ------------------------------------------------------------------
 
+# KPIs : dernière valeur disponible pour chaque série principale
 kpi_keys = [k for k in ("olo_10y", "euribor_3m", "inflation", "chomage") if k in macro.columns]
 cols = st.columns(len(kpi_keys))
 for col, key in zip(cols, kpi_keys):
@@ -90,14 +83,12 @@ for col, key in zip(cols, kpi_keys):
 
 st.divider()
 
-# ------------------------------------------------------------------
-# Graphique principal multi-séries
-# ------------------------------------------------------------------
-
 if not selected:
-    st.info("Sélectionner au moins une série dans le panneau gauche.")
+    st.info("Sélectionne au moins une série dans le panneau de gauche.")
     st.stop()
 
+
+# Graphique principal : une courbe par série sélectionnée
 fig = make_subplots(
     rows=len(selected),
     cols=1,
@@ -135,6 +126,7 @@ if show_events:
             annotation_font_color=color,
         )
 
+# Zone COVID en grisé
 fig.add_vrect(
     x0="2020-03",
     x1="2021-06",
@@ -157,10 +149,8 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True)
 
-# ------------------------------------------------------------------
-# Matrice de corrélation
-# ------------------------------------------------------------------
 
+# Matrice de corrélation en section repliable
 with st.expander("Matrice de corrélation", expanded=False):
     corr_keys = [k for k in DATASETS if k in macro.columns]
     corr = macro[corr_keys].corr(method="pearson").round(3)
@@ -175,7 +165,7 @@ with st.expander("Matrice de corrélation", expanded=False):
         text=corr.values.round(2),
         texttemplate="%{text}",
         textfont_size=11,
-        hovertemplate="%{y} × %{x} : %{z:.3f}<extra></extra>",
+        hovertemplate="%{y} x %{x} : %{z:.3f}<extra></extra>",
     ))
     fig_corr.update_layout(
         template="plotly_white",

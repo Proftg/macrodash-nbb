@@ -1,19 +1,21 @@
 """
 Nettoyage et alignement temporel des séries Eurostat.
 
-Problématique fréquences mixtes :
-  - Séries mensuelles (YYYY-MM)  : taux, inflation, chômage
-  - Séries trimestrielles (YYYY-Qn) : PIB trimestriel
-  - Séries annuelles (YYYY) : éventuellement
+Les séries ont des fréquences différentes selon le dataset :
+  - mensuel (YYYY-MM) : taux, inflation, chômage
+  - trimestriel (YYYY-Qn) : PIB
+  - annuel (YYYY) : cas rare
 
-Stratégie : tout normaliser en DatetimeIndex mensuel (MS).
-Le trimestriel et l'annuel sont convertis par forward-fill.
+On normalise tout sur un index mensuel (MS) pour pouvoir assembler
+les séries dans un seul DataFrame. Le trimestriel et l'annuel sont
+convertis par forward-fill (chaque valeur trimestrielle est répétée
+sur les 3 mois correspondants).
 """
 import pandas as pd
 
 
 def _detect_freq(df: pd.DataFrame) -> str:
-    """Détecte la fréquence temporelle à partir de la colonne 'periode'."""
+    """Identifie la fréquence temporelle à partir de la colonne periode."""
     if df.empty or "periode" not in df.columns:
         return "unknown"
     sample = df["periode"].dropna().head(5).tolist()
@@ -26,8 +28,8 @@ def _detect_freq(df: pd.DataFrame) -> str:
 
 def to_monthly(df: pd.DataFrame, name: str) -> pd.Series:
     """
-    Convertit un DataFrame [periode, valeur] en Series DatetimeIndex mensuel.
-    name → nom de la Series retournée (utilisé comme nom de colonne).
+    Convertit un DataFrame [periode, valeur] en Series avec index DatetimeIndex mensuel.
+    Le paramètre name devient le nom de la Series retournée.
     """
     if df.empty:
         return pd.Series(dtype=float, name=name)
@@ -53,9 +55,9 @@ def to_monthly(df: pd.DataFrame, name: str) -> pd.Series:
 
 def build_macro_df(series: dict[str, pd.DataFrame]) -> pd.DataFrame:
     """
-    Assemble un dict {key: DataFrame[periode, valeur]} en un DataFrame
-    multi-colonnes avec index DatetimeIndex mensuel.
-    Sauvegarde dans data/processed/macro_monthly.csv.
+    Assemble un dict de DataFrames en un seul DataFrame multi-colonnes
+    avec un index DatetimeIndex mensuel.
+    Sauvegarde le résultat dans data/processed/macro_monthly.csv.
     """
     from src.config import DATA_PROCESSED
 
