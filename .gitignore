@@ -3,6 +3,8 @@ __pycache__/
 .venv/
 .env
 *.db
+*.duckdb
+*.pdf
 data/raw/*.csv
 data/raw/*.json
 data/raw/*.png
