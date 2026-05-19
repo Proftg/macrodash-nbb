@@ -22,6 +22,7 @@ st.set_page_config(
     page_title="MacroDash NBB",
     page_icon="🏦",
     layout="wide",
+    initial_sidebar_state="expanded",
 )
 
 st.title("🏦 MacroDash : indicateurs macroéconomiques belges")
@@ -53,7 +54,7 @@ available_keys = [k for k in DATASETS if k in macro.columns]
 selected = st.sidebar.multiselect(
     "Séries à afficher",
     options=available_keys,
-    default=[k for k in ("olo_10y", "euribor_3m", "inflation") if k in available_keys],
+    default=[k for k in ("olo_10y", "inflation", "chomage", "prix_immo") if k in available_keys],
     format_func=lambda k: DATASETS[k]["label"],
 )
 
@@ -114,10 +115,12 @@ for i, key in enumerate(selected, start=1):
     )
 
 if show_events:
+    # Les annotations sur le premier subplot seulement, pour éviter l'empilement
     for date_str, label, color in BCE_EVENTS:
         x_ms = pd.Timestamp(date_str).value // 10**6
         fig.add_vline(
             x=x_ms,
+            row=1,
             line_dash="dot",
             line_color=color,
             opacity=0.5,
@@ -126,6 +129,15 @@ if show_events:
             annotation_font_size=9,
             annotation_font_color=color,
         )
+        # Lignes sans annotation sur les autres subplots
+        for row_idx in range(2, len(selected) + 1):
+            fig.add_vline(
+                x=x_ms,
+                row=row_idx,
+                line_dash="dot",
+                line_color=color,
+                opacity=0.3,
+            )
 
 # Zone COVID en grisé
 fig.add_vrect(
