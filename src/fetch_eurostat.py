@@ -158,9 +158,12 @@ class EurostatClient:
                 if not df.empty:
                     results[key] = df
                     if cache:
-                        path = DATA_RAW / f"{key}.csv"
-                        df.to_csv(path, index=False)
-                        print(f"  {key:<15} {len(df):>4} obs  -> {path.name}")
+                        try:
+                            path = DATA_RAW / f"{key}.csv"
+                            df.to_csv(path, index=False)
+                            print(f"  {key:<15} {len(df):>4} obs  -> {path.name}")
+                        except OSError:
+                            print(f"  {key:<15} {len(df):>4} obs  (cache ignore: fs read-only)")
                     else:
                         print(f"  {key:<15} {len(df):>4} obs")
                 else:
