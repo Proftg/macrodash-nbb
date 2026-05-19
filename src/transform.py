@@ -68,6 +68,9 @@ def build_macro_df(series: dict[str, pd.DataFrame]) -> pd.DataFrame:
     macro = pd.concat(monthly.values(), axis=1).sort_index()
     macro.index.name = "date"
 
-    out = DATA_PROCESSED / "macro_monthly.csv"
-    macro.to_csv(out)
+    try:
+        out = DATA_PROCESSED / "macro_monthly.csv"
+        macro.to_csv(out)
+    except OSError:
+        pass  # filesystem read-only (ex. Streamlit Cloud) : on continue sans sauvegarder
     return macro
