@@ -50,6 +50,14 @@ DATASETS: dict[str, dict] = {
         "unit": "MEUR",
         "color": "#1e8449",
     },
+    "prix_immo": {
+        "code": "ei_hppi_q",
+        "geo": "BE",
+        "filters": {"indic": "TOTAL", "unit": "RT4"},
+        "label": "Prix immobilier (%YoY)",
+        "unit": "% YoY",
+        "color": "#148f77",
+    },
 }
 
 # Dates clés du cycle BCE, utilisées pour annoter les graphiques.
