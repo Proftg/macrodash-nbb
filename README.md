@@ -160,10 +160,4 @@ Le premier lancement appelle l'API Eurostat (environ 10 secondes) et met les don
 
 ---
 
-## Auteur
-
-**Tahar Guenfoud** | Data Analyst en transition vers Data Scientist | Mons, Belgique
-
-Master UMONS 2025 + Le Wagon Data Science & AI 2025
-
 [GitHub](https://github.com/Proftg) | [Portfolio](https://proftg.github.io)
