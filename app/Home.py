@@ -67,7 +67,7 @@ show_events = st.sidebar.checkbox("Afficher événements BCE", value=True)
 
 
 # KPIs : dernière valeur disponible pour chaque série principale
-kpi_keys = [k for k in ("olo_10y", "euribor_3m", "inflation", "chomage") if k in macro.columns]
+kpi_keys = [k for k in ("olo_10y", "inflation", "chomage", "prix_immo") if k in macro.columns]
 cols = st.columns(len(kpi_keys))
 for col, key in zip(cols, kpi_keys):
     s = macro[key].dropna()
