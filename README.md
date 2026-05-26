@@ -16,6 +16,8 @@ L'objectif est double : montrer la transmission de la politique monétaire BCE s
 
 ## Aperçu
 
+![Dashboard MacroDash](docs/dashboard_preview.png)
+
 Les 4 KPIs en haut de page donnent la valeur la plus récente disponible pour chaque indicateur. Les graphiques en dessous permettent d'explorer la période souhaitée avec les événements BCE annotés.
 
 ---
