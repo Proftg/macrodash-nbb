@@ -36,7 +36,7 @@ Trois changements de l'API Eurostat en 2026 ont demandé des corrections : le pa
 src/        config, client Eurostat, transformation, DuckDB
 app/        Home.py, application Streamlit
 notebooks/  exploration et corrélations
-docs/       documentation détaillée
+docs/       capture du dashboard
 ```
 
 ## Lancer

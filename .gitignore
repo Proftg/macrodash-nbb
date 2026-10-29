@@ -12,3 +12,7 @@ data/processed/*.json
 data/processed/*.png
 .ipynb_checkpoints/
 .DS_Store
+
+# notes personnelles de preparation
+docs/PROJET_DOCUMENTATION.md
+docs/JOUR1_DOCUMENTATION.md
