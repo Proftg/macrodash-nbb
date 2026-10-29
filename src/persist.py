@@ -1,14 +1,7 @@
 """
-Persistance du DataFrame macro dans DuckDB.
+Stockage du DataFrame macro dans DuckDB (data/processed/macro.duckdb, table macro_monthly).
 
-Pourquoi DuckDB plutôt qu'un simple CSV ?
-- Requêtes SQL directes sur l'historique (filtres, agrégations)
-- Lecture partielle sans charger tout en mémoire
-- Format binaire plus rapide que CSV sur de grands volumes
-- Base de données locale, zéro configuration, fichier unique
-
-Le fichier est stocké dans data/processed/macro.duckdb.
-La table principale s'appelle macro_monthly.
+DuckDB permet d'interroger l'historique en SQL sans serveur : un seul fichier local.
 """
 import duckdb
 import pandas as pd
@@ -53,20 +46,11 @@ def load() -> pd.DataFrame:
         df = con.execute("SELECT * FROM macro_monthly ORDER BY date").df()
 
     df["date"] = pd.to_datetime(df["date"])
-    df = df.set_index("date")
-    df.index.name = "date"
-    return df
+    return df.set_index("date")
 
 
 def query(sql: str) -> pd.DataFrame:
-    """
-    Exécute une requête SQL arbitraire sur la base et retourne un DataFrame.
-
-    Exemples utiles :
-        query("SELECT * FROM macro_monthly WHERE date >= '2022-01-01'")
-        query("SELECT date, olo_10y, inflation FROM macro_monthly ORDER BY date DESC LIMIT 12")
-        query("SELECT AVG(inflation) FROM macro_monthly WHERE date >= '2020-01-01'")
-    """
+    """Exécute une requête SQL sur la base et retourne un DataFrame."""
     if not DB_PATH.exists():
         raise FileNotFoundError(f"Base DuckDB introuvable : {DB_PATH}")
 

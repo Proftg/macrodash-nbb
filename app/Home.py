@@ -25,7 +25,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-st.title("🏦 MacroDash : indicateurs macroéconomiques belges")
+st.title("MacroDash : indicateurs macroéconomiques belges")
 st.caption("Source : Eurostat | Auteur : Tahar Guenfoud | 2026")
 
 
@@ -160,7 +160,7 @@ fig.update_layout(
     hovermode="x unified",
 )
 
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, width="stretch")
 
 
 # Matrice de corrélation en section repliable
@@ -186,4 +186,4 @@ with st.expander("Matrice de corrélation", expanded=False):
         xaxis=dict(tickangle=-30),
         margin=dict(t=20, b=20),
     )
-    st.plotly_chart(fig_corr, use_container_width=True)
+    st.plotly_chart(fig_corr, width="stretch")

@@ -13,6 +13,8 @@ sur les 3 mois correspondants).
 """
 import pandas as pd
 
+from src.config import DATA_PROCESSED
+
 
 def _detect_freq(df: pd.DataFrame) -> str:
     """Identifie la fréquence temporelle à partir de la colonne periode."""
@@ -59,8 +61,6 @@ def build_macro_df(series: dict[str, pd.DataFrame]) -> pd.DataFrame:
     avec un index DatetimeIndex mensuel.
     Sauvegarde le résultat dans data/processed/macro_monthly.csv.
     """
-    from src.config import DATA_PROCESSED
-
     monthly = {k: to_monthly(df, k) for k, df in series.items() if not df.empty}
     if not monthly:
         return pd.DataFrame()
